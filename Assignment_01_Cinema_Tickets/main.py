@@ -4,35 +4,46 @@
 
 # Handles purchase logic
 def ticket_logic(tickets):
-    try:
-        purchase = int(input(f"{tickets} tickets remaining.\nHow many tickets would you like (max 4)? "))
-        if purchase < 1 or purchase > 4:
-            print("Please enter a number between 1 and 4.")
-            return tickets, False
-        if purchase <= tickets:
-            tickets -= purchase
-            print(f"{tickets} tickets remaining.")
-            return tickets, True
-        else:
-            print(f"Only {tickets} tickets remaining. Please try a smaller number.")
-            return tickets, False
-    except ValueError:
-        print("Please enter a valid number.")
-        return tickets, False
+    # Set ticket count to 20 and create accumulator for buyers
+    buyer_count = 0
+
+    # Loop until tickets are sold
+    while tickets > 0:
+        try:
+            # Ask how many tickets
+            purchase = int(input(f"How many tickets would you like (max 4)? "))
+            # Validate purchase request
+            if purchase < 1 or purchase > 4:
+                # User input out of range
+                print("Please enter a number between 1 and 4.")
+                continue
+            if purchase <= tickets:
+                # Valid purchase. Subtract and confirm
+                tickets -= purchase
+                print(f"{tickets} tickets remaining.")
+                # If successful, increase buyer count
+                buyer_count += 1
+            else:
+                # User asked for more than available
+                print(f"Only {tickets} tickets remaining. Please try a smaller number.")
+        except ValueError:
+            # User entered not a number.
+            print("Please enter a valid number.")
+
+    # return buyer count after loop ends
+    return buyer_count
 
 # Displays final summary
 def display_summary(buyer_count):
-    print("\nAll tickets sold.")
+    # Print total number of buyers after all tickets are sold
+    print(f"\nAll tickets sold.")
     print(f"Total number of buyers: {buyer_count}")
 
-# Main function
+# Main Function
 def main():
-    tickets = 20
-    buyer_count = 0
-    while tickets > 0:
-        tickets, success = ticket_logic(tickets)
-        if success:
-            buyer_count += 1
+    # Call purchase function for buyer count
+    buyer_count = ticket_logic(20)
+    # Display final summary
     display_summary(buyer_count)
 
 # Start the program
