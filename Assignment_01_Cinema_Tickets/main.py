@@ -11,21 +11,21 @@ def ticket_logic(tickets):
     while tickets > 0:
         try:
             # Ask how many tickets
-            purchase = int(input(f"How many tickets would you like (max 4)? "))
+            purchase = int(input(f"You looking for tickets?  I got some... (max 4)? "))
             # Validate purchase request
             if purchase < 1 or purchase > 4:
                 # User input out of range
-                print("Please enter a number between 1 and 4.")
+                print("Don't be greedy. Please enter a number between 1 and 4.")
                 continue
             if purchase <= tickets:
                 # Valid purchase. Subtract and confirm
                 tickets -= purchase
-                print(f"{tickets} tickets remaining.")
+                print(f"{tickets} tickets remaining. Who else wants to buy some tickets?")
                 # If successful, increase buyer count
                 buyer_count += 1
             else:
                 # User asked for more than available
-                print(f"Only {tickets} tickets remaining. Please try a smaller number.")
+                print(f"Sorry my dude... There's only {tickets} tickets remaining. Please try a smaller number.")
         except ValueError:
             # User entered not a number.
             print("Please enter a valid number.")
