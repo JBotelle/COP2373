@@ -42,7 +42,7 @@ def display_summary(buyer_count):
 # Main Function
 def main():
     # Call purchase function for buyer count
-    buyer_count = ticket_logic(20)
+    buyer_count = ticket_logic(104)
     # Display final summary
     display_summary(buyer_count)
 
