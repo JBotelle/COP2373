@@ -5,7 +5,7 @@
 # Handles purchase logic
 def ticket_logic(tickets):
     # Set ticket count to 20 and create accumulator for buyers
-    buyer_count = 0
+    buyer_counter = 0
 
     # Loop until tickets are sold
     while tickets > 0:
@@ -22,7 +22,7 @@ def ticket_logic(tickets):
                 tickets -= purchase
                 print(f"{tickets} tickets remaining. Who else wants to buy some tickets?")
                 # If successful, increase buyer count
-                buyer_count += 1
+                buyer_counter += 1
             else:
                 # User asked for more than available
                 print(f"Sorry my dude... There's only {tickets} tickets remaining. Please try a smaller number.")
@@ -31,20 +31,20 @@ def ticket_logic(tickets):
             print("Please enter a valid number.")
 
     # return buyer count after loop ends
-    return buyer_count
+    return buyer_counter
 
 # Displays final summary
-def display_summary(buyer_count):
+def display_summary(buyer_counter):
     # Print total number of buyers after all tickets are sold
     print(f"\nAll tickets sold.")
-    print(f"Total number of buyers: {buyer_count}")
+    print(f"Total number of buyers: {buyer_counter}")
 
 # Main Function
 def main():
     # Call purchase function for buyer count
-    buyer_count = ticket_logic(10)
+    buyer_counter = ticket_logic(10)
     # Display final summary
-    display_summary(buyer_count)
+    display_summary(buyer_counter)
 
 # Start the program
 if __name__ == "__main__":
