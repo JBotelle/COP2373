@@ -129,7 +129,9 @@ def main():
     print("\n---Spam Analysis")
     print(f"Your message came back with a score of {score} \n"
           f"and the likelihood of spam is {rating}")
-    print("Matched keywords are:", matched_keywords)
+    print("Matched keywords are: ")
+    for kw in matched_keywords:
+        print(f"\t{kw}")
 
 if __name__ == "__main__":
     main()
