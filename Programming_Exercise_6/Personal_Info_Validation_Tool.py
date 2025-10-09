@@ -7,6 +7,20 @@
 import re
 
 
+# Use re.fullmatch to match input to each number's pattern
+def validate_format(value, label):
+        patterns = {
+            "Social Security Number": (r"\d{3}-\d{2}-\d{4}", "xxx-xx-xxxx"),
+            "Phone Number": (r"\d{3}-\d{3}-\d{4}", "xxx-xxx-xxxx"),
+            "Zip Code": (r"\d{5}(-\d{4})?", "xxxxx or xxxxx-xxxx")
+        }
+        pattern, example = patterns.get(label)
+        if re.fullmatch(pattern, value):
+            return True
+        print(f"Please check your entry for {label} and re-enter exactly as shown. {example}: ")
+        return False
+
+
 #remove all non-digit characters from input
 def clean_input(raw):
     return re.sub(r'\D', '', raw)
@@ -82,10 +96,24 @@ def main():
     # Setup to loop until user exits
     while True:
         print("*" * 70)
-        social = input("Please enter the Social Security Number (xxx-xx-xxxx): ")
-        phone = input("Thank you. Please enter the Phone Number (xxx-xxx-xxxx): ")
-        zip_code = input("Perfect. Please enter the Zip Code (xxxxx or xxxxx-xxxx): ")
 
+        # Prompt the user for personal information and check for correct format using re.fullmatch
+        while True:
+            social = input("Please enter the Social Security Number (xxx-xx-xxxx): ")
+            if validate_format(social, "Social Security Number"):
+                break
+
+        while True:
+            phone = input("Thank you. Please enter the Phone Number (xxx-xxx-xxxx): ")
+            if validate_format(phone, "Phone Number"):
+                break
+
+        while True:
+            zip_code = input("Perfect. Please enter the Zip Code (xxxxx or xxxxx-xxxx): ")
+            if validate_format(zip_code, "Zip Code"):
+                break
+
+        # Print the validation results
         print('\nValidation Results:')
         print("*" * 70)
         print(f"Social Security Number is: {'Valid' if validate_social(social) else 'Invalid'}")
