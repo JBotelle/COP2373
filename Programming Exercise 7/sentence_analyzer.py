@@ -78,7 +78,7 @@ def main():
                 break
             if choice in ("n", "no"):
                 print("\nThank you for using the Sentence Splitter. Goodbye.")
-                sys.exit(0)
+                return
             attempts += 1
             print("Invalid input. Please type 'y' or 'n'.")
 
