@@ -1,16 +1,14 @@
 # Joe Botelle
 # Programming Exercise: CSV
-
-# This program collects student grade data and writes it to grades.csv.
-# User has option to open read_grades.py to view results in a table.
-# There's also a three-try system in place that exits the program after three invalid inputs.
+#
+# This program collects student grade data and writes it to grades.csv,
+# and can also read grades.csv to display results in a table.
+# There is a three-try system in place that exits the program after three invalid inputs.
 
 import csv
 import sys
-import subprocess
 import os
 import re
-
 
 # ------------------------------------------------------------------------------------------------------------------
 # INPUT VALIDATION FUNCTIONS
@@ -32,8 +30,7 @@ def get_int(prompt, min_value=0, max_value=100):
     print("I'm sorry, but I don't understand your input. Please try again later.")
     sys.exit()
 
-
-# Prompt user for yes/no input. Three failed attempts exits program
+# yes/no validation for user questions.  Three failed attempts exits program
 def get_yes_no(prompt):
     attempts = 0
     while attempts < 3:
@@ -47,7 +44,6 @@ def get_yes_no(prompt):
             attempts += 1
     print("I'm sorry, please try again later.")
     sys.exit()
-
 
 # Prompt user for name input. Accepts letters, apostrophes, hyphens, and spaces
 def get_name(prompt):
@@ -63,7 +59,6 @@ def get_name(prompt):
     print("I'm sorry, please try again later.")
     sys.exit()
 
-
 # ------------------------------------------------------------------------------------------------------------------
 # INPUT / OUTPUT FUNCTIONS
 # ------------------------------------------------------------------------------------------------------------------
@@ -72,10 +67,12 @@ def get_name(prompt):
 def load_grades():
     if not os.path.exists("grades.csv"):
         return []
+    # Attempt to open grades.csv
     try:
         with open("grades.csv", mode="r", newline="") as file:
             reader = csv.DictReader(file)
             expected_fields = ["First Name", "Last Name", "Exam 1", "Exam 2", "Exam 3"]
+            # If headers don't match expected_fields, returns empty list and prints message.
             if reader.fieldnames != expected_fields:
                 print("There's an issue with grades.csv. Unexpected headers found.")
                 return []
@@ -83,7 +80,6 @@ def load_grades():
     except Exception as e:
         print(f"Error: {e}")
         return []
-
 
 # Save list of dictionaries to grades.csv
 def save_grades(data):
@@ -98,7 +94,6 @@ def save_grades(data):
         print(f"Error: {e}")
         sys.exit()
 
-
 # ------------------------------------------------------------------------------------------------------------------
 # DATA FUNCTIONS
 # ------------------------------------------------------------------------------------------------------------------
@@ -109,6 +104,7 @@ def display_students(data):
         print("There are no students to display.")
         return
 
+    # Setup and print table.
     headers = ["#", "First Name", "Last Name"]
     widths = [4, 25, 25]
     border = "+" + "+".join(["-" * w for w in widths]) + "+"
@@ -125,11 +121,7 @@ def display_students(data):
 
     print(border)
 
-
 # Add new student records and save after each entry
-import re
-import sys
-
 def add_students(data):
     # student_count counter is for number of student being added, mismatch_attempts counter for three-try rules.
     student_count = 0
@@ -139,6 +131,7 @@ def add_students(data):
         print(f"\nEntering data for student {student_count + 1} "
               "(press Enter at First and Last Name to finish):")
 
+        # Get student name
         first_name = input("First Name: ").strip()
         last_name = input("Last Name: ").strip()
 
@@ -155,7 +148,8 @@ def add_students(data):
             if mismatch_attempts >= 3:
                 print("Too many invalid attempts. Exiting program.")
                 sys.exit()
-            continue  # restart loop
+            # Restart loop
+            continue
 
         # Validate names matching regex
         if not re.match(r"^[A-Za-z][A-Za-z'\- ]*$", first_name):
@@ -201,15 +195,18 @@ def edit_student(data):
         print("No student records available to edit.")
         return
 
+    # Call display_students to retrieve student list.
     display_students(data)
     index = get_int("Enter the number of the student to edit: ", 1, len(data)) - 1
     student = data[index]
 
+    # Messages to edit student names and scores.
     print(f"\nEditing: {student['First Name']} {student['Last Name']}")
 
     new_first = input(f"First Name [{student['First Name']}] (press Enter to skip): ").strip()
     new_last = input(f"Last Name [{student['Last Name']}] (press Enter to skip): ").strip()
 
+    # Validate the entries and use re.match for names.
     if new_first:
         if re.match(r"^[A-Za-z][A-Za-z'\- ]*$", new_first):
             student['First Name'] = new_first
@@ -235,8 +232,11 @@ def edit_student(data):
             except ValueError:
                 print(f"Invalid input for {exam}. Keeping original score.")
 
+    # Save the data
+    save_grades(data)
+    print("Student record updated and saved.")
 
-# Delete a student record
+
 def delete_student(data):
     if not data:
         print("No student records available to delete.")
@@ -249,29 +249,87 @@ def delete_student(data):
     confirm = get_yes_no(f"Are you sure you want to delete {student['First Name']} {student['Last Name']}? y/n: ")
     if confirm:
         del data[index]
-        print("Student record deleted.")
+        save_grades(data)
+        print("Student record deleted and saved.")
     else:
         print("Canceled.")
-
 
 # Reset class by clearing all data and overwriting grades.csv
 def reset_class():
     confirm = get_yes_no("This will erase all student records. Are you sure? y/n: ")
     if confirm:
-        save_grades([])  # Overwrite file with just header
+        # Overwrite file with just header
+        save_grades([])
         print("Class has been reset.")
         return []
     else:
         print("Reset canceled.")
         return None
 
+# Opens grades.csv and displays in a table.
+def read_grades():
+    # Checks if the file exists. If not, asks if user wants to continue back to menu
+    if not os.path.exists('grades.csv'):
+        print("grades.csv does not exist. Please enter grades first.")
+        return
+
+    # Opens the csv file and
+    try:
+        with open("grades.csv", mode="r") as file:
+            reader = csv.DictReader(file)
+
+            # Define the column headers and widths for table.
+            headers = ["First Name", "Last Name", "Exam 1", "Exam 2", "Exam 3", "AVG %"]
+            col_widths = [25, 25, 10, 10, 10, 10]
+
+            # Build the border
+            border = "+" + "+".join("-" * w for w in col_widths) + "+"
+            print(border)
+            header_row = "|" + "|".join(f"{h:<{w}}" for h, w in zip(headers, col_widths)) + "|"
+            print(header_row)
+            print(border)
+
+            rows_printed = False
+            # Inside the loop where each row is printed
+            for row in reader:
+                rows_printed = True
+
+                # Calculate average percentage
+                try:
+                    exam1 = int(row["Exam 1"])
+                    exam2 = int(row["Exam 2"])
+                    exam3 = int(row["Exam 3"])
+                    avg = round((exam1 + exam2 + exam3) / 3, 2)
+                except (ValueError, KeyError):
+                    avg = 0.0
+
+                # Build the row
+                values = [
+                    row["First Name"],
+                    row["Last Name"],
+                    row["Exam 1"],
+                    row["Exam 2"],
+                    row["Exam 3"],
+                    f"{avg:.2f}%"
+                ]
+                data_row = "|" + "|".join(f"{v:<{w}}" for v, w in zip(values, col_widths)) + "|"
+                print(data_row)
+
+            # If no rows, print centered "No Data Message"
+            if not rows_printed:
+                print("|" + "No data found in grades.csv".center(sum(col_widths), " ") + "|")
+            print(border)
+
+    except FileNotFoundError:
+        print("grades.csv does not exist. Please enter grades first.")
+        return
 
 # ------------------------------------------------------------------------------------------------------------------
-# MAIN MENu
+# MAIN MENU
 # ------------------------------------------------------------------------------------------------------------------
 
 def write_grades():
-    # Load any existing student data from grades.csv into memory
+    # Load any existing student data from grades.csv
     data = load_grades()
 
     # Counter to track invalid menu attempts
@@ -286,9 +344,10 @@ def write_grades():
         print("3. Delete student")
         print("4. Save and exit")
         print("5. Reset class (overwrite all data)")
+        print("6. Display grades")
 
         # Ask the user for their menu choice
-        choice = input("Select an option (1–5): ").strip()
+        choice = input("Select an option (1–6): ").strip()
 
         # Handle each valid menu option
         if choice == "1":
@@ -303,31 +362,26 @@ def write_grades():
             attempts = 0
         elif choice == "4":
             save_grades(data)
-
-            # After saving, optionally run read_grades.py to display results
+            # After saving, optionally display the grades
             if get_yes_no("Would you like to display the grades now? y/n: "):
-                try:
-                    subprocess.run(["python", "read_grades.py"], check=True)
-                except FileNotFoundError:
-                    print("Error: read_grades.py could not be found.")
-                    sys.exit()
-                except subprocess.CalledProcessError:
-                    print("Error: read_grades.py could not be executed.")
-                    sys.exit()
+                read_grades()
             break
         elif choice == "5":
             result = reset_class()
             if result is not None:
                 data = result
             attempts = 0
+        elif choice == "6":
+            # Directly call the reader function within the same file
+            read_grades()
+            attempts = 0
         else:
             # Count invalid attempts and exit after three failures
             attempts += 1
-            print("Invalid selection. Please choose 1–5.")
+            print("Invalid selection. Please choose 1–6.")
             if attempts >= 3:
                 print("Too many invalid attempts. Exiting program.")
                 sys.exit()
-
 
 def main():
     write_grades()
