@@ -1,3 +1,10 @@
+# Joe Botelle
+# Programming Exercise 11
+
+# This program deals five cards, allows user to replace up to three cards
+# then the program redeals the cards selected before asking to play again
+
+
 import random  # Used to shuffle the deck and deal random cards
 
 # Represents a playing card with a suit and rank
