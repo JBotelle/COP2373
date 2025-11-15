@@ -5,10 +5,15 @@
 # and can also read grades.csv to display results in a table.
 # There is a three-try system in place that exits the program after three invalid inputs.
 
+# **UPDATE** Added statistical dataset option that works off of numpy to give average,
+# median, standard deviation, minimum, and maximum and outputs in a tablular format to the user.
+
+import numpy as np
 import csv
-import sys
 import os
 import re
+import sys
+
 
 # ------------------------------------------------------------------------------------------------------------------
 # INPUT VALIDATION FUNCTIONS
@@ -324,6 +329,93 @@ def read_grades():
         print("grades.csv does not exist. Please enter grades first.")
         return
 
+
+# ------------------------------------------------------------------------------------------------------------------
+# ANALYSIS FUNCTIONS ADD ON FOR EXERCISE 12
+# ------------------------------------------------------------------------------------------------------------------
+
+# Extracts integer scores for Exam 1-3 from each row
+def get_scores(data):
+    scores = []
+    for row in data:
+        try:
+            scores.append([
+                int(row["Exam 1"]),
+                int(row["Exam 2"]),
+                int(row["Exam 3"])
+            ])
+        # Skip rows with missing or invalid data
+        except (ValueError, KeyError):
+            continue
+    return np.array(scores)
+
+
+# Analyze statistics for each exam
+def analyze_exam_scores(data):
+    scores = get_scores(data)
+    if scores.size == 0:
+        print("No valid exam data found.")
+        return
+
+    # Fixed width table layout
+    headers = ["Exam", "Mean", "Median", "Std Dev", "Min", "Max", "Pass", "Fail"]
+    widths = [8, 8, 8, 10, 6, 6, 6, 6]
+    border = "+" + "+".join("-" * w for w in widths) + "+"
+    header_row = "|" + "|".join(f"{h:^{w}}" for h, w in zip(headers, widths)) + "|"
+
+    print("\nExam Statistics")
+    print(border)
+    print(header_row)
+    print(border)
+
+    # Iterate over each exam column
+    for i in range(scores.shape[1]):
+        exam_scores = scores[:, i]
+        mean = np.mean(exam_scores)
+        median = np.median(exam_scores)
+        std = np.std(exam_scores)
+        min_val = np.min(exam_scores)
+        max_val = np.max(exam_scores)
+        passes = np.sum(exam_scores >= 60)
+        fails = np.sum(exam_scores < 60)
+
+        row = [f"Exam {i+1}", f"{mean:.2f}", f"{median:.2f}", f"{std:.2f}",
+               str(min_val), str(max_val), str(passes), str(fails)]
+        print("|" + "|".join(f"{v:^{w}}" for v, w in zip(row, widths)) + "|")
+
+    print(border)
+
+
+# Analyze overall class performance across all exams
+def analyze_class(data):
+    scores = get_scores(data)
+    if scores.size == 0:
+        print("No valid exam data found.")
+        return
+
+    # Metrics for data set
+    all_scores = scores.flatten()
+    mean = np.mean(all_scores)
+    median = np.median(all_scores)
+    std = np.std(all_scores)
+    min_val = np.min(all_scores)
+    max_val = np.max(all_scores)
+
+    # Pass rate set to 60%
+    passes = np.sum(all_scores >= 60)
+    total = all_scores.size
+    pass_pct = (passes / total) * 100 if total > 0 else 0
+
+    # Output
+    print("\nClass Statistics")
+    print(f"Mean: {mean:.2f}%")
+    print(f"Median: {median:.2f}%")
+    print(f"Standard Deviation: {std:.2f}%")
+    print(f"Min: {min_val}%")
+    print(f"Max: {max_val}%")
+    print(f"Overall Pass Percentage: {pass_pct:.2f}%")
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # MAIN MENU
 # ------------------------------------------------------------------------------------------------------------------
@@ -345,9 +437,10 @@ def write_grades():
         print("4. Save and exit")
         print("5. Reset class (overwrite all data)")
         print("6. Display grades")
+        print("7. Analyze grades")
 
         # Ask the user for their menu choice
-        choice = input("Select an option (1–6): ").strip()
+        choice = input("Select an option (1–7): ").strip()
 
         # Handle each valid menu option
         if choice == "1":
@@ -365,6 +458,8 @@ def write_grades():
             # After saving, optionally display the grades
             if get_yes_no("Would you like to display the grades now? y/n: "):
                 read_grades()
+                analyze_exam_scores(data)
+                analyze_class(data)
             break
         elif choice == "5":
             result = reset_class()
@@ -372,9 +467,11 @@ def write_grades():
                 data = result
             attempts = 0
         elif choice == "6":
-            # Directly call the reader function within the same file
             read_grades()
             attempts = 0
+        elif choice == "7":
+            analyze_exam_scores(data)
+            analyze_class(data)
         else:
             # Count invalid attempts and exit after three failures
             attempts += 1
