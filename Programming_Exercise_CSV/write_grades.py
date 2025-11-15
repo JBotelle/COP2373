@@ -405,9 +405,11 @@ def analyze_class(data):
     passes = np.sum(all_scores >= 60)
     total = all_scores.size
     pass_pct = (passes / total) * 100 if total > 0 else 0
+    num_students = scores.shape[0]
 
     # Output
     print("\nClass Statistics")
+    print(f"Number of students: {num_students}")
     print(f"Mean: {mean:.2f}%")
     print(f"Median: {median:.2f}%")
     print(f"Standard Deviation: {std:.2f}%")
